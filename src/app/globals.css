@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
+/* ezphone-tailwind-theme.css
+ * Tailwind v4 color tokens for the EZPhone brand
+ * Import file này trước các @tailwind directives
+ */
+
+@theme {
+  /* Brand */
+  --color-primary: #0e7cc9; /* EZ blue */
+  --color-primary-foreground: #ffffff; /* Text on primary */
+  --color-primary-700: #0b5fa0; /* Darker blue for hovers */
+  --color-primary-400: #3498db; /* Lighter blue / accents */
+  --color-primary-200: #c9e5fd;
+
+  /* Neutral / Secondary */
+  --color-secondary: #979ea4; /* Tech-silver (icons, secondary text) */
+  --color-secondary-600: #7b838a; /* Hover / headings if needed */
+
+  /* Surfaces */
+  --color-background: #ffffff; /* Page background (light) */
+  --color-foreground: #333333; /* Primary body text */
+  --color-muted: #ebebeb; /* Subtle backgrounds / separators */
+  --color-border: #ececec; /* Card borders / inputs */
+  --color-card: #ffffff; /* Cards / panels */
+  --color-popover: #ffffff; /* Menus / popovers */
+
+  /* States */
+  --color-ring: #0e7cc9; /* Focus ring */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+}
+
+/* Optional dark mode (class strategy) */
+.dark {
+  --color-background: #0b1220;
+  --color-foreground: #e5e7eb;
+  --color-card: #0e1525;
+  --color-popover: #0e1525;
+  --color-muted: #1f2937;
+  --color-border: #1f2a37;
+  --color-secondary: #a1a8ae;
+  --color-secondary-600: #8b9298;
+
+  /* Keep brand blue readable on dark */
+  --color-primary: #0e7cc9;
+  --color-primary-700: #0b5fa0;
+  --color-primary-400: #3aa4e6;
+  --color-ring: #3498db;
+}
+
+/* Example helpers */
+:root {
+  color-scheme: light dark;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}

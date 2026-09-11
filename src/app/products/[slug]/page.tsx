@@ -67,17 +67,17 @@ export default function ProductDetailPage({
 
         {/* Info (sticky) */}
         <div className="space-y-5 md:sticky md:top-20">
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
             {product?.name}
           </h1>
 
           {/* Meta */}
-          <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <div className="text-sm text-gray-600 flex items-center gap-2">
             <span>Brand:</span>
-            <span className="text-foreground">{product?.manufacturerName}</span>
+            <span className="text-foreground font-medium">{product?.manufacturerName}</span>
             <span className="mx-2"> • </span>
             <span>Category:</span>
-            <span className="text-foreground">{product?.categoryName}</span>
+            <span className="text-foreground font-medium">{product?.categoryName}</span>
           </div>
 
           {/* Price + Stock */}
@@ -112,8 +112,8 @@ export default function ProductDetailPage({
           {/* Description */}
           {product?.description && (
             <div className="prose prose-zinc max-w-none">
-              <h2 className="mb-3 text-lg font-semibold">Description</h2>
-              <p>{product.description}</p>
+              <h2 className="mb-3 text-lg font-semibold text-gray-900">Description</h2>
+              <p className="text-gray-700">{product.description}</p>
             </div>
           )}
         </div>

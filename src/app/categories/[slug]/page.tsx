@@ -88,7 +88,7 @@ export default function CategoryPage({
           <div className="rounded-2xl bg-white p-4 sm:p-5 shadow-sm ring-1 ring-gray-100">
             {/* Tiêu đề */}
             <h1
-              className="font-bold leading-tight tracking-tight text-balance"
+              className="font-bold leading-tight tracking-tight text-balance text-gray-900"
               style={{ fontSize: "clamp(1.5rem, 4vw, 2.75rem)" }}
             >
               {category?.name}
@@ -101,7 +101,7 @@ export default function CategoryPage({
             >
               <Link
                 href="/"
-                className="rounded-full border px-3 py-1 hover:bg-gray-50"
+                className="rounded-full border px-3 py-1 text-gray-700 hover:bg-gray-50"
               >
                 Home
               </Link>

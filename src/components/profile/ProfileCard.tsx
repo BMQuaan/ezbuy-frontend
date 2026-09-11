@@ -73,7 +73,7 @@ export default function ProfileCard() {
             className="rounded-full border-2 border-primary"
           />
           <div>
-            <h1 className="text-2xl font-semibold">
+            <h1 className="text-2xl font-semibold text-gray-900">
               {user?.firstName} {user?.lastName}
             </h1>
             <p className="text-secondary text-sm">EZBuy Member</p>

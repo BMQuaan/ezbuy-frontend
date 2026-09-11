@@ -144,7 +144,7 @@ export default function UserButton() {
         <div
           id="user-menu"
           role="menu"
-          className="absolute right-0 mt-2 w-44 bg-white dark:bg-card border border-border rounded-xl shadow-lg p-2 z-50 cursor-pointer"
+          className="absolute right-0 mt-2 w-44 bg-white text-gray-700 border border-border rounded-xl shadow-lg p-2 z-50 cursor-pointer"
         >
           <Link
             href="/profile"

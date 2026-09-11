@@ -28,7 +28,7 @@ export default function RootLayout({
   // const accessToken = Cookies.get("accessToken") || (typeof window !== "undefined" && localStorage.getItem("accessToken"));
   return (
     <html lang="en">
-      <body className="bg-white">
+      <body className="bg-white text-gray-800 antialiased">
         <AppProviders>
           {/* <GlobalRouteGuard /> */}
           <Navbar />

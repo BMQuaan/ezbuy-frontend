@@ -53,9 +53,26 @@
   --color-ring: #3498db;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Example helpers */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-background, #ffffff);
+  color: var(--color-foreground, #333333);
+}
+
+input,
+select,
+textarea {
+  color: inherit;
 }
 
 @keyframes spin-slow {

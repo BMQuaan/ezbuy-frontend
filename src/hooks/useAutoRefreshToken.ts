@@ -2,14 +2,26 @@
 
 import { useEffect } from "react";
 import Cookies from "js-cookie";
-import { refreshAccessToken } from "@/utils/axiosInstance";
+import { refreshAccessToken, isTokenExpired } from "@/utils/axiosInstance";
 
 export function useAutoRefreshToken() {
   useEffect(() => {
-    const token = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+    // Chỉ chạy nếu người dùng đã từng đăng nhập
+    const isLoggedIn =
+      Cookies.get("logged_in") === "1" ||
+      (typeof window !== "undefined" && !!localStorage.getItem("user"));
 
-    // Nếu không có accessToken, thử refresh luôn
-    if (!token) {
+    if (!isLoggedIn) {
+      return; // Khách vãng lai xem sản phẩm: KHÔNG làm gì, tránh bị redirect login
+    }
+
+    const token =
+      Cookies.get("accessToken") ||
+      (typeof window !== "undefined" ? localStorage.getItem("accessToken") : null);
+
+    const needRefresh = !token || isTokenExpired(token);
+
+    if (needRefresh) {
       refreshAccessToken()
         .then((newToken) => {
           if (newToken) {

@@ -191,8 +191,8 @@ export default function CheckoutPage() {
 
   const labelCls = "block text-sm font-medium text-gray-700 mb-1";
   const inputCls =
-    "w-full rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 px-4 py-2.5 outline-none";
-  const cardCls = "rounded-2xl border border-gray-200 bg-white shadow-sm";
+    "w-full rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 px-4 py-2.5 outline-none";
+  const cardCls = "rounded-2xl border border-gray-200 bg-white shadow-sm text-gray-800";
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 lg:pt-10">

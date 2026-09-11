@@ -8,7 +8,9 @@ import { error } from "console";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
-const API_URL ="http://localhost:8081/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api`
+  : "http://localhost:8081/api";
 const LOGIN_URL = "/login";
 
 declare module "axios" {
@@ -21,22 +23,31 @@ const handleLogout = () => {
   // 1. Xóa Cookies
   Cookies.remove("accessToken");
   Cookies.remove("refresh_token");
+  document.cookie = "role=; Path=/; Max-Age=0; SameSite=Lax";
+  document.cookie = "logged_in=; Path=/; Max-Age=0; SameSite=Lax";
 
   // 2. Xóa LocalStorage
   if (typeof window !== "undefined") {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
-    
-    // 3. Chuyển hướng về trang login
-    // Kiểm tra để tránh reload loop nếu đang ở trang login rồi
-    if (window.location.pathname !== LOGIN_URL) {
-      window.location.href = LOGIN_URL;
+    window.dispatchEvent(new Event("auth:changed"));
+
+    // 3. Chỉ chuyển hướng về trang login nếu đang ở route được bảo vệ
+    const pathname = window.location.pathname;
+    const isProtected =
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/checkout") ||
+      pathname.startsWith("/profile") ||
+      pathname.startsWith("/cart");
+
+    if (isProtected && pathname !== LOGIN_URL) {
+      window.location.href = `${LOGIN_URL}?redirect_url=${encodeURIComponent(pathname)}`;
     }
   }
 };
 
 // 🧠 Kiểm tra token hết hạn
-const isTokenExpired = (token: string) => {
+export const isTokenExpired = (token: string) => {
   try {
     const decoded: any = jwtDecode(token);
     if (!decoded.exp) return true;

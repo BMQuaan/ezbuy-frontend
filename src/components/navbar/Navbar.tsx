@@ -33,7 +33,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className=" w-full sticky  top-0 left-0 z-50   bg-white/70 dark:bg-card/60
+      className=" w-full sticky  top-0 left-0 z-50   bg-white/70
   bg-gradient-to-b from-primary-200/25 to-transparent
   backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-md
   border-b border-border/60 shadow-sm"

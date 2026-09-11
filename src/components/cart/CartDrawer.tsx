@@ -63,7 +63,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
       {/* Panel */}
       <aside
-        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white dark:bg-card
+        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white text-gray-800
         shadow-xl border-l border-border/60
         transition-transform duration-300 ease-out
         ${open ? "translate-x-0" : "translate-x-full"}`}
@@ -72,10 +72,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-secondary/70">
-          <h2 className="text-lg font-semibold">Your Cart</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Your Cart</h2>
           <button
             onClick={onClose}
-            className="rounded-xl px-3 py-1 text-sm hover:bg-secondary/40"
+            className="rounded-xl px-3 py-1 text-sm text-gray-600 hover:bg-secondary/40"
           >
             Close
           </button>
@@ -88,7 +88,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
               <div className="relative h-12 w-28 mb-3">
                 <Image alt="EZPhone" src="/images/logo/ezbuy_logo.png" fill className="object-contain" />
               </div>
-              <p className="text-base font-medium">Your cart is empty</p>
+              <p className="text-base font-medium text-gray-900">Your cart is empty</p>
               <p className="text-sm text-gray-600 mt-1">
                 Browse our latest phones and accessories.
               </p>
@@ -192,7 +192,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <div className="flex gap-3 pt-1">
                   <Link
                     href="/cart"
-                    className="flex-1 inline-flex items-center justify-center rounded-xl border px-4 py-2 font-medium hover:bg-secondary/40"
+                    className="flex-1 inline-flex items-center justify-center rounded-xl border px-4 py-2 font-medium text-gray-800 hover:bg-secondary/40"
                     onClick={onClose}
                   >
                     View Cart

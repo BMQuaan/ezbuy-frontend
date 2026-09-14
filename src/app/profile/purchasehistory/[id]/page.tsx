@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, XCircle, CreditCard } from "lucide-react";
 import { format } from "date-fns";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -23,6 +23,7 @@ export default function ClientOrderDetailPage() {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRetryingPayment, setIsRetryingPayment] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -51,6 +52,28 @@ export default function ClientOrderDetailPage() {
 
     if (id) fetchOrderDetail();
   }, [id]);
+
+  const handleRetryPayment = async () => {
+    if (!order) return;
+    try {
+      setIsRetryingPayment(true);
+      const res = await axiosInstance.get(`/orders/${order.id}/payment-url`);
+      const paymentUrl = res.data?.data?.paymentUrl;
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+      } else {
+        alert("Không thể lấy liên kết thanh toán. Vui lòng thử lại sau.");
+      }
+    } catch (err: any) {
+      console.error("Lỗi khi lấy liên kết thanh toán:", err);
+      alert(
+        err.response?.data?.message ||
+          "Không thể lấy link thanh toán. Vui lòng thử lại sau."
+      );
+    } finally {
+      setIsRetryingPayment(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -100,9 +123,25 @@ export default function ClientOrderDetailPage() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">
-        Order Details #{order.id}
-      </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Order Details #{order.id}
+        </h1>
+        {order.status === "PENDING" && order.paymentStatus !== "PAID" && (
+          <button
+            onClick={handleRetryPayment}
+            disabled={isRetryingPayment}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-md shadow-blue-200 transition disabled:opacity-50"
+          >
+            {isRetryingPayment ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <CreditCard className="w-4 h-4" />
+            )}
+            Thanh toán ngay qua VNPay
+          </button>
+        )}
+      </div>
 
       {/* 🧾 Order Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -117,6 +156,22 @@ export default function ClientOrderDetailPage() {
         <div>
           <p className="text-sm text-gray-500">Status</p>
           <StatusBadge status={order.status} />
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Payment Method</p>
+          <p className="font-medium">{order.paymentMethod || "COD"}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">Payment Status</p>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+              order.paymentStatus === "PAID"
+                ? "bg-emerald-100 text-emerald-800"
+                : "bg-amber-100 text-amber-800"
+            }`}
+          >
+            {order.paymentStatus || "UNPAID"}
+          </span>
         </div>
         <div>
           <p className="text-sm text-gray-500">Receiver Name</p>

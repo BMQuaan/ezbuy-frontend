@@ -11,11 +11,13 @@ export type OrderStatus =
 // Danh sách đơn hàng (rút gọn)
 export interface OrderSummary {
   id: number;
-  receiverName:string;
-  userEmail:string;
+  receiverName?: string;
+  userEmail?: string;
   orderDate: string;
   totalAmount: number;
   status: OrderStatus;
+  paymentStatus?: "UNPAID" | "PAID" | "FAILED" | "REFUNDED";
+  paymentMethod?: string | null;
 }
 
 // Sản phẩm trong chi tiết đơn hàng
@@ -31,6 +33,7 @@ export interface OrderDetail {
   id: number;
   orderDate: string;
   status: OrderStatus;
+  paymentStatus?: "UNPAID" | "PAID" | "FAILED" | "REFUNDED";
   receiverName: string;
   shippingAddress: string;
   phone: string;

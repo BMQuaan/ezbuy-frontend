@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -17,6 +17,9 @@ const formatCurrency = (amount: number) =>
 export default function ClientOrderDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const paymentStatus = searchParams.get("paymentStatus");
+
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +79,26 @@ export default function ClientOrderDetailPage() {
         <ArrowLeft className="w-4 h-4" />
         Back to Orders
       </button>
+
+      {/* 🔔 Payment Status Notification */}
+      {paymentStatus === "success" && (
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <div>
+            <p className="font-semibold text-emerald-900">Payment via VNPay Successful!</p>
+            <p className="text-sm text-emerald-700">Your order has been paid and is being prepared for shipment.</p>
+          </div>
+        </div>
+      )}
+      {paymentStatus === "failed" && (
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3">
+          <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          <div>
+            <p className="font-semibold text-rose-900">Payment Failed or Cancelled</p>
+            <p className="text-sm text-rose-700">The VNPay payment was not completed. You can retry paying from your order history.</p>
+          </div>
+        </div>
+      )}
 
       <h1 className="text-2xl font-bold text-gray-900 mb-4">
         Order Details #{order.id}

@@ -126,7 +126,8 @@ export default function CheckoutPage() {
     setPlacing(true);
 
     try {
-      // 1. Gửi request tạo đơn hàng
+      // 1. Gửi request tạo đơn hàng với Idempotency-Key chống duplicate transaction
+      const idempotencyKey = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : undefined;
       const res = await axiosInstance.post(`/orders`, {
         receiverName: form.receiverName,
         shippingAddress: form.shippingAddress,
@@ -134,6 +135,8 @@ export default function CheckoutPage() {
         note: form.note,
         paymentId: PAYMENT_IDS[paymentMethod], // Lấy ID dựa trên phương thức đã chọn
         promoCode: form.promoCode || null,
+      }, {
+        headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
       });
 
       const data = res.data.data; // Lấy data từ response

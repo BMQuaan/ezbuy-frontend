@@ -81,10 +81,14 @@ export async function fetchOrderDetail(orderId: number): Promise<OrderDetail> {
 }
 
 // Tạo đơn hàng mới
-export async function createOrder(data: CreateOrderPayload): Promise<OrderSummary> {
+export async function createOrder(data: CreateOrderPayload, idempotencyKey?: string): Promise<OrderSummary> {
+  const key = idempotencyKey || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : undefined);
   return handleResponse(
     axiosInstance.post(API_BASE, data, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(key ? { "Idempotency-Key": key } : {}),
+      },
       withCredentials: true,
     })
   );

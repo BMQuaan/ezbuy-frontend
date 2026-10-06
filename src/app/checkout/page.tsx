@@ -1,7 +1,7 @@
 // File: app/checkout/page.tsx
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hook";
@@ -30,6 +30,17 @@ const PAYMENT_IDS = {
 };
 
 // ---- Helpers -------------------------------------------------------------
+
+function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 function currency(v: number) {
   return v.toLocaleString("en-US", { style: "currency", currency: "USD" });
@@ -92,6 +103,25 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [agree, setAgree] = useState(true);
 
+  // Quản lý Idempotency Key cho phiên checkout (Order Intent)
+  // Key được giữ nguyên khi retry (lỗi mạng, timeout) để Backend nhận diện cùng một giao dịch
+  const idempotencyKeyRef = useRef<string>("");
+
+  const getOrGenerateIdempotencyKey = () => {
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = generateUUID();
+    }
+    return idempotencyKeyRef.current;
+  };
+
+  const resetIdempotencyKey = () => {
+    idempotencyKeyRef.current = generateUUID();
+  };
+
+  useEffect(() => {
+    getOrGenerateIdempotencyKey();
+  }, []);
+
   function validate() {
     const e: Record<string, string> = {};
     if (!form.receiverName.trim())
@@ -126,22 +156,29 @@ export default function CheckoutPage() {
     setPlacing(true);
 
     try {
-      // 1. Gửi request tạo đơn hàng với Idempotency-Key chống duplicate transaction
-      const idempotencyKey = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : undefined;
-      const res = await axiosInstance.post(`/orders`, {
-        receiverName: form.receiverName,
-        shippingAddress: form.shippingAddress,
-        phone: form.phone,
-        note: form.note,
-        paymentId: PAYMENT_IDS[paymentMethod], // Lấy ID dựa trên phương thức đã chọn
-        promoCode: form.promoCode || null,
-      }, {
-        headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
-      });
+      // 1. Sử dụng Idempotency-Key của phiên đặt hàng hiện tại (giữ nguyên khi retry)
+      const idempotencyKey = getOrGenerateIdempotencyKey();
+      const res = await axiosInstance.post(
+        `/orders`,
+        {
+          receiverName: form.receiverName,
+          shippingAddress: form.shippingAddress,
+          phone: form.phone,
+          note: form.note,
+          paymentId: PAYMENT_IDS[paymentMethod], // Lấy ID dựa trên phương thức đã chọn
+          promoCode: form.promoCode || null,
+        },
+        {
+          headers: { "Idempotency-Key": idempotencyKey },
+        }
+      );
 
       const data = res.data.data; // Lấy data từ response
 
-      // 2. Kiểm tra Payment URL
+      // 2. Giao dịch thành công -> Làm mới key cho phiên mua sắm tiếp theo
+      resetIdempotencyKey();
+
+      // 3. Kiểm tra Payment URL
       // Nếu Backend trả về paymentUrl (VNPay), chuyển hướng người dùng
       if (data && data.paymentUrl) {
         notify("Redirecting to VNPay...", { variant: "info" });
@@ -154,7 +191,7 @@ export default function CheckoutPage() {
         return; 
       }
 
-      // 3. Nếu là COD (không có paymentUrl) -> Xử lý thành công ngay
+      // 4. Nếu là COD (không có paymentUrl) -> Xử lý thành công ngay
       notify("Order successful", { variant: "success" });
       window.dispatchEvent(new Event("auth:changed"));
       await dispatch(fetchCartWithTotal());
@@ -162,8 +199,20 @@ export default function CheckoutPage() {
       
     } catch (error: any) {
       console.log("Error placing order:", error);
-      const msg = error?.response?.data?.message || "Order failed";
-      notify(msg, { variant: "warning" });
+      const status = error?.response?.status;
+      if (status === 409) {
+        // Trùng lặp in-flight hoặc đang được xử lý ở backend -> Giữ nguyên key, nhắc người dùng chờ
+        notify(
+          error?.response?.data?.message ||
+            "Your order is currently being processed. Please wait a moment...",
+          { variant: "info" }
+        );
+      } else {
+        const msg = error?.response?.data?.message || "Order failed";
+        notify(msg, { variant: "warning" });
+      }
+      // Lưu ý: Không reset idempotencyKeyRef tại đây để khi người dùng ấn thử lại (Retry do rớt mạng),
+      // cùng một Idempotency-Key sẽ được gửi lên giúp Backend replay kết quả cũ an toàn.
     } finally {
       // Chỉ tắt loading nếu không phải redirect (nếu redirect thì trang sẽ unload)
       if (paymentMethod === "COD") {
